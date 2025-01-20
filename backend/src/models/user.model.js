@@ -32,7 +32,6 @@ const userSchema = new Schema(
         }, 
         avatar: {
             type: String, //cloudinary
-            required: true,
         },
         refreshToken: {
             type: String,

@@ -1,4 +1,4 @@
-import { Route, Router } from "react-router-dom"
+import { Routes, Route } from "react-router-dom"
 import Navbar from "./components/Navbar"
 import HomePage from "./pages/HomePage.jsx"
 import LoginPage from "./pages/LoginPage.jsx"
@@ -9,15 +9,15 @@ import SignUpPage from "./pages/SignUpPage.jsx"
 const App = () => {
   return (
     <div>
-      <Navbar/>
-
-      <Router>
-        <Route path="/" element = {<HomePage />}/>
-        <Route path="/login" element = {<LoginPage />}/>
-        <Route path="/profile" element = {<ProfilePage />}/>
-        <Route path="/setting" element = {<SettingPage />}/>
-        <Route path="/signup" element = {<SignUpPage />}/>
-      </Router>
+      <Navbar />
+      
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/setting" element={<SettingPage />} />
+        <Route path="/signup" element={<SignUpPage />} />
+      </Routes>
     </div>
   )
 }
