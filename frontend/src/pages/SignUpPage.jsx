@@ -49,6 +49,7 @@ const SignUpPage = () => {
     }
 
     console.log([...formDataToSubmit.entries()]); // Debug: Check the FormData being sent
+    console.log(formDataToSubmit);
 
     await signup(formDataToSubmit);
   };

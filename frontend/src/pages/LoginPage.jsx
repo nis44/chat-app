@@ -11,7 +11,7 @@ const LoginPage = () => {
   });
 
   const [showPassword, setShowPassword] = useState(false); // For toggling password visibility
-  const { login, isLoggingIn } = useAuthStore();
+  const { login, isLoggingIn} = useAuthStore();
   const navigate = useNavigate(); 
 
   const handleChange = (e) => {
@@ -46,6 +46,8 @@ const LoginPage = () => {
       alert("Invalid credentials. Please try again.");
     }
   };
+
+  
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-100">

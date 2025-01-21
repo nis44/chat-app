@@ -256,31 +256,34 @@ const updateAccountDetails = asyncHandler(async (req, res) => {
 
 const updateAvatar = asyncHandler(async (req, res) => {
     const avatarLocalPath = req.file?.path;
+    console.log(avatarLocalPath)
 
-    if(!avatarLocalPath) {
-        throw new apierror(400, "avatar is required");
+    if (!avatarLocalPath) {
+        throw new apierror(400, "Avatar is required");
     }
 
     const avatar = await uploadOnCloudinary(avatarLocalPath);
 
-    if(!avatar.url) {
+    if (!avatar.url) {
         throw new apierror(500, "Failed to upload avatar");
     }
 
-    const user = User.findByIdAndUpdate(
+    // Use .lean() to avoid circular structure and return plain JavaScript object
+    const user = await User.findByIdAndUpdate(
         req.user?._id,
-        {
-            $set: {avatar: avatar.url}
-        },
-        {
-            new: true,
-        }
-    ).select("-password -refreshToken");
+        { $set: { avatar: avatar.url } },
+        { new: true }
+    )
+    .select("-password -refreshToken")
+    .lean(); // This returns a plain JavaScript object instead of a Mongoose document
 
-    return res
-        .status(200)
-        .json(new apiResponse(200, {user}, "Avatar updated successfully"));
+    if (!user) {
+        throw new apierror(404, "User not found");
+    }
+
+    return res.status(200).json(new apiResponse(200, { user }, "Avatar updated successfully"));
 });
+
 
 export {
     registerUser,
