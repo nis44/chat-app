@@ -1,49 +1,49 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useAuthStore } from "../store/useAuthStore";
 
 const HomePage = () => {
-  const { users, messages, fetchUsers, fetchMessages, sendMessage } = useAuthStore();
+  const { users, messages, fetchUsers, fetchMessages, sendMessage, setselectedUserr } =
+    useAuthStore();
   const [selectedUser, setSelectedUser] = useState(null); // Currently selected user
   const [messageText, setMessageText] = useState(""); // Input message text
-  const [imageFile, setImageFile] = useState(null); // Selected image file
+  const messagesEndRef = useRef(null); // Reference to the end of the messages list
 
   useEffect(() => {
     fetchUsers(); // Fetch users when the component loads
   }, [fetchUsers]);
 
+  // Scroll to the latest message
+  const scrollToBottom = () => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
+  useEffect(() => {
+    scrollToBottom(); // Scroll to the bottom whenever messages update
+  }, [messages]);
+
   // Handle user selection
   const handleUserSelect = (user) => {
     setSelectedUser(user);
-    fetchMessages(user._id); // Fetch messages for the selected user
+    fetchMessages(user._id);
+    setselectedUserr(user._id); // Fetch messages for the selected user
   };
 
   // Handle sending a message
-  const handleSendMessage = async () => {
-    if (!messageText.trim() && !imageFile) return; // Don't send if both text and image are empty
-
-    // Create FormData to send both text and image
-    const formData = new FormData();
-    formData.append("text", messageText);
-    if (imageFile) {
-      formData.append("image", imageFile);
-    }
-    console.log(formData)
-
-    await sendMessage(selectedUser._id, formData); // Send message to the selected user
+  const handleSendMessage = () => {
+    if (!messageText.trim()) return; // Don't send empty messages
+    sendMessage(selectedUser._id, { text: messageText }); // Send message to the selected user
     setMessageText(""); // Clear input after sending
-    setImageFile(null); // Clear selected image
-  };
-
-  // Handle image selection
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setImageFile(file); // Save the selected file
-    }
   };
 
   return (
     <div className="flex flex-col h-screen">
+      {/* Navbar */}
+      <nav className="bg-blue-500 text-white p-4">
+        <h1 className="text-xl font-bold">Chat Application</h1>
+      </nav>
+
       {/* Content area */}
       <div className="flex flex-1 bg-gray-100">
         {/* Sidebar */}
@@ -103,8 +103,7 @@ const HomePage = () => {
                             : "bg-blue-500 text-white"
                         }`}
                       >
-                        {msg.text && <p>{msg.text}</p>}
-                        {msg.image && (
+                        {msg.text || (
                           <img
                             src={msg.image}
                             alt="Message"
@@ -117,11 +116,13 @@ const HomePage = () => {
                 ) : (
                   <div className="text-center text-gray-500">No messages yet</div>
                 )}
+                {/* Dummy div for scrolling */}
+                <div ref={messagesEndRef} />
               </div>
 
               {/* Message Input */}
               <div className="p-4 border-t bg-gray-50">
-                <div className="flex space-x-2 items-center">
+                <div className="flex space-x-2">
                   <input
                     type="text"
                     placeholder="Type a message..."
@@ -129,19 +130,6 @@ const HomePage = () => {
                     onChange={(e) => setMessageText(e.target.value)}
                     className="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-blue-300"
                   />
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageChange}
-                    className="hidden"
-                    id="image-upload"
-                  />
-                  <label
-                    htmlFor="image-upload"
-                    className="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg cursor-pointer hover:bg-gray-300"
-                  >
-                    {imageFile ? "Image Selected" : "Attach Image"}
-                  </label>
                   <button
                     onClick={handleSendMessage}
                     className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition"
@@ -149,15 +137,6 @@ const HomePage = () => {
                     Send
                   </button>
                 </div>
-                {imageFile && (
-                  <div className="mt-2">
-                    <img
-                      src={URL.createObjectURL(imageFile)}
-                      alt="Preview"
-                      className="w-20 h-20 object-cover rounded"
-                    />
-                  </div>
-                )}
               </div>
             </>
           ) : (

@@ -5,6 +5,7 @@ import { apiResponse } from "../utils/ApiResponse.js";
 import { Message } from "../models/message.model.js";
 import { uploadOnCloudinary } from "../utils/Cloudinary.js";
 import mongoose from "mongoose";
+import { getRecieverSocketId, io } from "../socket.js";
 
 const getUserForSidebar = asyncHandler(async (req, res) => {
     const loggedInUserId = req.user._id;
@@ -55,6 +56,11 @@ const sendMessages = asyncHandler(async (req, res) => {
     });
 
     await newMessage.save();
+
+    const recieverSocketId = getRecieverSocketId(recieverId)
+    if(recieverSocketId) {
+        io.to(recieverSocketId).emit("newMessage", newMessage)
+    }
 
     res.status(201).json(
         new apiResponse(201, newMessage, "Message sent successfully")

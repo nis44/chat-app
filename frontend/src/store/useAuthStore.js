@@ -14,6 +14,8 @@ export const useAuthStore = create((set, get) => ({
   users: [],
   messages: [],
   socket: null,
+  onlineUsers: [],
+  selectedUser: null,
 
   // Sign-up functionality
   signup: async (userData) => {
@@ -69,7 +71,7 @@ export const useAuthStore = create((set, get) => ({
     try {
       const response = await axiosInstance.get("/users/current-user");
       set({ user: response.data.data.user });
-      console.log("Updated user state:", response.data.data.user);
+      // console.log("Updated user state:", response.data.data.user);
       get().connectSocket();
     } catch (error) {
       console.error("Error fetching current user:", error);
@@ -112,7 +114,7 @@ export const useAuthStore = create((set, get) => ({
     set({ isLoading: true });
     try {
       const response = await axiosInstance.get("/users/get-users");
-      console.log(response.data.data)
+      // console.log(response.data.data)
       set({ users: response.data.data, isLoading: false });
       // console.log(users)
     } catch (error) {
@@ -146,16 +148,44 @@ export const useAuthStore = create((set, get) => ({
   },
 
   connectSocket: () => {
-    const {getCurrentUser} = get()
-    if(!getCurrentUser || get().socket?.connected) return;
+    const {user} = get()
+    if(!user || get().socket?.connected) return;
+    // console.log(user)
 
 
-    const socket = io(BASE_URL)
+    const socket = io(BASE_URL, {
+      query: {
+        userId: user._id,
+      } 
+    });
     socket.connect()
     set ({socket: socket})
+
+    socket.on("getOnlineUsers", (userIds) => {
+      set({ onlineUsers: userIds})
+    })
   },
   disconnectSocket: () => {
     if(get().socket?.connected) get().socket.disconnect();
     set ({socket: null})
   },
+
+  subscribesTomessages: () => {
+    const {selectedUser, socket} = get()
+    if(!selectedUser) return;
+
+    socket.on('newMessage', (newMessage) => {
+      set({
+        messages: [...get().messages, newMessage],
+      })
+    })
+  },
+
+  unsubscribesTomessages: () => {
+    const {socket} = get()
+
+    socket.off("newMessage")
+  },
+
+  setselectedUserr: (selectedUser) => set({selectedUser}),
 }));
