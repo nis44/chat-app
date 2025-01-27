@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useAuthStore } from "../store/useAuthStore";
 import { Eye, EyeOff } from "lucide-react"; // Importing icons from lucide-react
+import { Link } from "react-router-dom"; // Import Link for navigation
 
 const SignUpPage = () => {
   const [formData, setFormData] = useState({
@@ -157,6 +158,14 @@ const SignUpPage = () => {
             {isSigningUp ? "Signing Up..." : "Sign Up"}
           </button>
         </form>
+        
+        {/* Link to Login */}
+        <p className="text-center text-sm text-gray-600 mt-4">
+          Already have an account?{" "}
+          <Link to="/login" className="text-blue-500 hover:underline">
+            Log in here
+          </Link>
+        </p>
       </div>
     </div>
   );

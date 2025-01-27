@@ -1,7 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
-const app = express();
+import {app} from "./socket.js"
 
 app.use(cors({
     origin: "http://localhost:5173",

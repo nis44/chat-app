@@ -61,6 +61,12 @@ const sendMessages = asyncHandler(async (req, res) => {
     );
 });
 
+
+
+
+export { getMessages, getUserForSidebar, sendMessages };
+
+
 // const getUserForSidebar = asyncHandler(async (req, res) => {
 //     const loggedInUserId = req.user._id;
 
@@ -124,6 +130,3 @@ const sendMessages = asyncHandler(async (req, res) => {
 //         new apiResponse(201, newMessage, "Message sent successfully")
 //     );
 // });
-
-
-export { getMessages, getUserForSidebar, sendMessages };
